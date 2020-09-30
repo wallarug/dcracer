@@ -2,12 +2,12 @@
 
 from distutils.core import setup
 
-setup(name='rmracerlib',
-      version='0.5',
-      description='Robotics Masters Beijing Project',
+setup(name='dcracer',
+      version='0.1',
+      description='',
       author='Robotics Masters Limited',
       author_email='cian@roboticsmasters.co',
-      url='https://github.com/robotics-masters/rm-racer',
+      url='https://github.com/wallarug/dcracer',
       install_requires=['donkeycar',
                         ],
       extras_require={
@@ -16,5 +16,5 @@ setup(name='rmracerlib',
                               '',
                               ],
                       },
-      packages=['rmracerlib'],
+      packages=['dcracer'],
      )
