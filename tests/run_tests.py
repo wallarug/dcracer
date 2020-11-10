@@ -37,25 +37,6 @@ OUTPUT_DIR = "capture"
 # set up the windows for testing
 if DEBUG:
     cv2.namedWindow("live")
-    cv2.namedWindow("processed")
-    cv2.namedWindow("mask")
-    cv2.namedWindow("color filter")
-
-if TRACKBARS:
-    def nothing(x):
-        # any operation
-        pass
-    cv2.namedWindow("trackbars")
-    cv2.namedWindow("trackbarview")
-    cv2.createTrackbar("L-H", "trackbars", 0, 180, nothing)
-    cv2.createTrackbar("L-S", "trackbars", 0, 255, nothing)
-    cv2.createTrackbar("L-V", "trackbars", 0, 255, nothing)
-    cv2.createTrackbar("U-H", "trackbars", 180, 180, nothing)
-    cv2.createTrackbar("U-S", "trackbars", 255, 255, nothing)
-    cv2.createTrackbar("U-V", "trackbars", 255, 255, nothing)
-
-if DEBUG or DEMO_MODE:
-    cv2.namedWindow("live")
 
 # set some variables for testing output
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -90,18 +71,15 @@ for testcase in testfile:
     folder = os.path.join(dir_data, testcase[1])
     onlyfiles = [f for f in listdir(folder) if isfile(join(folder, f))]
 
-    correct = 0
-    incorrect = 0
-
-    truepos = 0
-    falsepos = 0
-    trueneg = 0
-    falseneg = 0
-    
+    results[testcase] = {'correct' : 0, 'incorrect' : 0,
+                         'true_pos' : 0, 'false_pos' : 0,
+                         'true_neg' : 0, 'false_neg' : 0,
+                         'percentage' : 0, 'total_img' : len(onlyfiles)}    
 
     for f in onlyfiles:
-        name = f  # TODO - fix
-        frame = cv2.imread(f)
+        name = f
+        img = os.path.join(folder, f)
+        frame = cv2.imread(img)
 
         # process frame
         res = detect(frame)
@@ -110,6 +88,7 @@ for testcase in testfile:
         # TODO - strip file name and get the detection value from the file name
         # TODO - compare with result from res
 
+        # save results
         
 
 while True:
