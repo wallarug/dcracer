@@ -1,16 +1,8 @@
 '''
-# Sign detection - Red Stop Sign
+# DC Racer Testing and Reporting System (DC RTRS)
 
-This works by OpenCV first detecting selecting a set area of the image (HSV).
- It then goes to detect a Region of Interest (ROI) through colour filtering.
- Post ROI analysis is completed and a result is then returned.
+TODO - Description and Usage
 
- 1.  Read in an image (or capture)
- 2.  Convert to Hue, Saturation, Value (HSV)
- 3.  Extract features based on colour
- 4.  Further feature extraction of ROI from step 3 for shape, location
-      in image, size, etc.
- 5.  Result returned.
 '''
 
 import cv2
@@ -167,25 +159,29 @@ im_num = 1
 frame_num = 0
 count = 0
 
+
+## result variables
+results = {}
+
+## import library / code for testing.
+#from scripts.detect import detect
+
+# load test cases
+testfile = open('tests.csv', 'r')
+header = True
+for testcase in testfile:
+    if header:
+        header = False
+        continue
+    # for each test, run the detect function and store the result(s)
+    folder = testcase[1]
+    res = detect(
+
 while True:
-    # grab a frame from the camera
-    if not TUB:
-        ret, frame = cap.read()
-        frame_num += 1
-        if ret == False:
-            frame = cv2.imread(VIDEO_FILE)
-            ret = True
-
     # grab a frame from file
-    if TUB:
-        ret = True
-        frame = cv2.imread("{1}/{0}_cam-image_array_.jpg".format(im_num, VIDEO_FILE))
-        im_num += 1
-
-    # if frame does not exist... exit
-    if not ret:
-        print("ERROR - failed to grab frame")
-        break
+    
+    frame = cv2.imread("{1}/{0}_cam-image_array_.jpg".format(im_num, VIDEO_FILE))
+    im_num += 1
 
     # convert to HSV image
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
