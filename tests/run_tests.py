@@ -10,31 +10,19 @@ import numpy as np
 import platform
 #import matplotlib.pyplot as plt
 
-from camera import jetsoncam
 import time
 import sys
+
+from os import listdir
+from os.path import isfile, join
 
 ##
 ## VARIABLES
 ##
-# Turn on the trackbar feature for extracting colours from images
-TRACKBARS = False
 
 # Turn on OpenCV Output
 DEBUG = True
 DEMO_MODE = True
-
-# Select what data to use for analysis.
-#  None - video camera
-#  .mp4 - video file (one play)
-#  .jpg - single image (on loop)
-#  folder name - run through a tub
-VIDEO_FILE =  "tub2007/138_cam-image_array_.jpg"
-#VIDEO_FILE = "track-data/data6.mp4"
-VIDEO_FILE = "track-data/data6/468_cam-image_array_.jpg"
-
-# Use this option when providing 'folder name'
-TUB = False
 
 # Video frame rate.  33 = ~30 fps, 50 = ~20fps
 WAIT_TIME = 50
@@ -42,26 +30,7 @@ WAIT_TIME = 50
 # Directory when capturing data for analysis
 OUTPUT_DIR = "capture"
 
-#  Set the minimum and maximum areas for detection
-AREA_SIZE = 30
-MAX_AREA_SIZE = 1000
 
-# set the size of the detection kernel for image morph operations.
-KERNEL_SIZE = 5
-
-## FILTERS
-# red filter for stop sign
-lower_red_stop = np.array([160, 75, 50])   #red filter
-upper_red_stop = np.array([180, 255, 255])   #red filter
-
-lower_red2_stop = np.array([0, 150, 100])   #red filter
-upper_red2_stop = np.array([10, 255, 255])   #red filter
-
-lower_white_stop = np.array([0, 0, 240])  #white octagon
-upper_stop = np.array([180, 240, 255])
-
-#kernels
-kernel = np.ones((KERNEL_SIZE,KERNEL_SIZE), np.uint8)
 
 
 ## TESTING WINDOWS AND DEBUGGING
@@ -90,67 +59,7 @@ if DEBUG or DEMO_MODE:
 
 # set some variables for testing output
 font = cv2.FONT_HERSHEY_SIMPLEX
-    
 
-## Set the camera for the OS
-cap = None
-os = platform.system()
-if VIDEO_FILE is None:
-    if os == 'Linux':  # Jetson
-        cap = cv2.VideoCapture(jetsoncam(flip_method=2), cv2.CAP_GSTREAMER)
-    elif os == 'Windows':
-        cap = cv2.VideoCapture(0)
-    elif os == 'Darwin':
-        cap = cv2.VideoCapture("/dev/video1")
-else:
-    cap = cv2.VideoCapture(VIDEO_FILE)
-
-
-### FUNCTIONS ###
-def valid_range(x, y, w, h, frame):
-    '''
-    This function returns if an roi is in a valid or acceptable part of the image.  The reason
-     for having this is due to extra parts of the frame containing reflections.
-    '''
-    left_buf = 10
-    right_buf = 40
-    top_buf = 10
-    centre_buf = 25
-
-    height, width = frame.shape[:2]
-
-    h0 = top_buf
-    h1 = int(height / 5)
-    h2 = int(height / 2)
-    #horizon = int(((height / 2) + (height / 3))/2)
-    horizon = int(height/2)
-
-    v0 = left_buf       # furthest left width
-    v1 = int(width/3)   # 1/3rd width
-    v2 = v1*2           # 2/3rd width
-    v3 = width - right_buf   # furthest right width
-
-    #cv2.line(frame, (0, int(height/3) ), (width, int(height/3) ), (0,0,255))
-    cv2.line(frame, (0, h1 ), (width, h1 ), (255,0,255))
-    cv2.line(frame, (0, horizon ), (width, horizon ), (0,255,255))
-
-    cv2.line(img, (0, h1 ), (width, h1 ), (255,0,255))
-    #cv2.line(img, (0, int(height/2) ), (width, int(height/2) ), (0,0,255))
-    cv2.line(img, (0, horizon ), (width, horizon ), (0,255,255))
-
-    cw = True
-    ch = False
-
-    if ( (v0 < x < v1) or (v2 < x < v3) ) and ( (v0 < x+w < v1) or (v2 < x+w < v3) ):
-        cw = True
-
-    if (h1 < y < horizon) and (h1 < y+h < horizon): #h0 < y < h2:
-        ch = True
-
-    if ch and cw:
-        return True
-    else:
-        return False
 
 
 ###  B E G I N  P R O G R A M  ###
@@ -159,6 +68,9 @@ im_num = 1
 frame_num = 0
 count = 0
 
+## setup
+dir_path = os.path.dirname(os.path.realpath(__file__))
+dir_data = os.path.join(dir_path, 'data')
 
 ## result variables
 results = {}
@@ -169,13 +81,36 @@ results = {}
 # load test cases
 testfile = open('tests.csv', 'r')
 header = True
+
 for testcase in testfile:
     if header:
         header = False
         continue
     # for each test, run the detect function and store the result(s)
-    folder = testcase[1]
-    res = detect(
+    folder = os.path.join(dir_data, testcase[1])
+    onlyfiles = [f for f in listdir(folder) if isfile(join(folder, f))]
+
+    correct = 0
+    incorrect = 0
+
+    truepos = 0
+    falsepos = 0
+    trueneg = 0
+    falseneg = 0
+    
+
+    for f in onlyfiles:
+        name = f  # TODO - fix
+        frame = cv2.imread(f)
+
+        # process frame
+        res = detect(frame)
+
+        # process results
+        # TODO - strip file name and get the detection value from the file name
+        # TODO - compare with result from res
+
+        
 
 while True:
     # grab a frame from file
@@ -284,26 +219,3 @@ while True:
 cap.release()
 cv2.destroyAllWindows()
 sys.exit(0)
-
-# EXAMPLES
-mask = cv2.inRange(hsv, lower_red, upper_red)
-kernel = np.ones((5, 5), np.uint8)
-mask = cv2.erode(mask, kernel)
-
-contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-area = cv2.contourArea(cnt)
-approx = cv2.approxPolyDP(cnt, 0.02*cv2.arcLength(cnt, True), True)
-x = approx.ravel()[0]
-y = approx.ravel()[1]
-
-if area > 400:
-    cv2.drawContours(frame, [approx], 0, (0, 0, 0), 5)
-    if len(approx) == 3:
-        cv2.putText(frame, "Triangle", (x, y), font, 1, (0, 0, 0))
-    elif len(approx) == 4:
-        cv2.putText(frame, "Rectangle", (x, y), font, 1, (0, 0, 0))
-    elif len(approx) == 8:
-        cv2.putText(frame, "Octagon", (x, y), font, 1, (0, 0, 0))
-    elif 10 < len(approx) < 20:
-        cv2.putText(frame, "Circle", (x, y), font, 1, (0, 0, 0))
