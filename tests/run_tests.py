@@ -1,7 +1,9 @@
 '''
 # DC Racer Testing and Reporting System (DC RTRS)
 
-TODO - Description and Usage
+This script runs a standard test across all the different
+student code bases.  The tests will be based on 100 frame
+scenarios.
 
 '''
 
