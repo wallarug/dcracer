@@ -51,6 +51,7 @@ def file_rename(files, name, index):
     """
         Takes a list of full path file names.
     """
+    tracker = index
     for count, f in enumerate(files):
         # get extension
         ext = f[-3:]
@@ -67,6 +68,9 @@ def file_rename(files, name, index):
 
         # rename files
         rename(src, dst)
+        tracker += 1
+
+    return tracker
 
 def frame_list_rename(detection, start, first, last, path):
     frames = []
@@ -84,11 +88,12 @@ def frame_list_rename(detection, start, first, last, path):
     index = 0
 
     # non-detections at the start
-    file_rename(frames[start:first], (detection + '_false'))
+    index = file_rename(frames[start:first], (detection + '_false'), index)
+    
     # first detection, and detection range
-    file_rename(frames[first:last])
+    index = file_rename(frames[first:last], (detection + '_true'), index)
     # after the sign has been pasted to the end of the array (fill out rest)
-    file_rename(frames[last:])
+    index = file_rename(frames[last:], (detection + '_false', index)
     
     
         
