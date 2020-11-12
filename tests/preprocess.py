@@ -47,17 +47,50 @@ def folder_rename(path, name):
         rename(src, dst)
         #print(src, dst)
 
+def file_rename(files, name, index):
+    """
+        Takes a list of full path file names.
+    """
+    for count, f in enumerate(files):
+        # get extension
+        ext = f[-3:]
+        
+        # set up new file name
+        dst = "{1}_{0}.{2}".format(name, count+index, ext)
 
-def flip_hori(file_path, file_name, new_file_name):
-    name = file_path + "/" + file_name
-    dst = file_path + "/" + new_file_name
+        # set up old file name
+        src = "{0}".format(filename)
+
+        if src == dst:
+            print("file already exists")
+            continue
+
+        # rename files
+        rename(src, dst)
+
+def frame_list_rename(detection, start, first, last, path):
+    frames = []
+
+    # get all the files from the given path (assume it is set correctly)
+    onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+
+    # rebuild the full path 
+    for filename in onlyfiles:
+        frames.append(os.path.join(path, filename))
+
+    # put all the frames in order
+    frames.sort()
+
+    index = 0
+
+    # non-detections at the start
+    file_rename(frames[start:first], (detection + '_false'))
+    # first detection, and detection range
+    file_rename(frames[first:last])
+    # after the sign has been pasted to the end of the array (fill out rest)
+    file_rename(frames[last:])
     
-    img = cv2.imread(file_path)
-
-    flipped = cv2.flip(img, 1)
-
-    cv2.imwrite(flipped, dst)
     
         
-folder_rename(Path(PATH),FILE_NAME)
+#folder_rename(Path(PATH),FILE_NAME)
 
