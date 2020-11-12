@@ -2,14 +2,15 @@
 # Script to rename and create data for TensorFlow
 #
 
+import os
 from os import listdir, rename, listdir
 from os.path import isfile, join
 from pathlib import Path
 
 import cv2
 
-PATH = "/Users/cianb/Documents/repos/wallarug/tensorflow-training-ground/turn_signs_color_filtered/train/left"
-FILE_NAME = "left"
+PATH = "/Users/cianb/Documents/repos/wallarug/dcracer/tests/data/shenzhen_stop_1"
+FILE_NAME = "stop"
 
 """
     Pre-Process Proceedure
@@ -52,6 +53,7 @@ def file_rename(files, name, index):
         Takes a list of full path file names.
     """
     tracker = index
+    print(tracker)
     for count, f in enumerate(files):
         # get extension
         ext = f[-3:]
@@ -70,9 +72,11 @@ def file_rename(files, name, index):
         rename(src, dst)
         tracker += 1
 
+        print(src, dst)
+
     return tracker
 
-def frame_list_rename(detection, start, first, last, path):
+def frame_list_rename(path, detection, start, first, last):
     frames = []
 
     # get all the files from the given path (assume it is set correctly)
@@ -85,17 +89,20 @@ def frame_list_rename(detection, start, first, last, path):
     # put all the frames in order
     frames.sort()
 
+    #print(frames)
+
     index = 0
 
     # non-detections at the start
+    print(frames[start:first])
     index = file_rename(frames[start:first], (detection + '_false'), index)
     
     # first detection, and detection range
     index = file_rename(frames[first:last], (detection + '_true'), index)
     # after the sign has been pasted to the end of the array (fill out rest)
-    index = file_rename(frames[last:], (detection + '_false', index)
+    index = file_rename(frames[last:], (detection + '_false'), index)
     
     
         
 #folder_rename(Path(PATH),FILE_NAME)
-
+frame_list_rename(Path(PATH), FILE_NAME, 200, 269, 289) 
