@@ -126,7 +126,11 @@ def frame_list_rename(path, detection, start, first, last):
     # after the sign has been pasted to the end of the array (fill out rest)
     index = file_rename(frames[real_last:], (detection + '_false'), index)
     
-    
+
+#TODO - read in a CSV file with all the parameters
+def read_csv():
+    pass
+
         
 #folder_rename(Path(PATH),FILE_NAME)
 frame_list_rename(Path(PATH), FILE_NAME, 200, 269, 289) 
