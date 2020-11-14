@@ -1,5 +1,6 @@
 #
 # Script to rename and create data for TensorFlow
+#  Can take in a whole folder and CSV to mass process
 #
 
 import os
